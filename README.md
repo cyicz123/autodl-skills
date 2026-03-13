@@ -19,6 +19,7 @@ npx skills add https://github.com/cyicz123/autodl-elastic-deploy
 
 This skill enables your coding agent to interact with [AutoDL Private Cloud](https://private.autodl.com) for GPU container orchestration. The agent can:
 
+- **Queued submission** — auto-validate config, poll for GPU availability, then submit
 - **Create deployments** — ReplicaSet, Job, or single Container
 - **Monitor containers** — query status, events, SSH info
 - **Scale dynamically** — adjust replica count on the fly
@@ -74,6 +75,7 @@ AUTODL_TOKEN=<your_token>
 ```
 autodl-elastic-deploy/
 ├── SKILL.md            # Skill definition (agent reads this)
+├── queue_submit.py     # Queued deployment submission script
 ├── api-reference.md    # Full API parameters & response formats
 ├── examples.md         # Common scenario code examples
 ├── .env.example        # Token configuration template
@@ -81,11 +83,34 @@ autodl-elastic-deploy/
 └── .gitignore
 ```
 
+## Queued Submission
+
+AutoDL doesn't natively support queuing when GPU resources are unavailable. `queue_submit.py` fills this gap:
+
+1. **Validates** config schema, image existence, and GPU type availability
+2. **Polls** GPU stock until sufficient idle GPUs are found
+3. **Submits** the deployment and returns the UUID
+
+For impossible requirements (non-existent GPU types, invalid images, contradictory parameters), the script exits immediately with structured JSON errors so the agent can ask the user to correct them.
+
+```bash
+python queue_submit.py deploy.json --interval 30 --timeout 3600
+```
+
+| Error Type | Meaning |
+|------------|---------|
+| `validation_error` | Bad config parameters (e.g., `cpu_from > cpu_to`) |
+| `image_not_found` | Image UUID doesn't exist |
+| `gpu_type_not_found` | None of the requested GPU types exist |
+| `submission_error` | GPU available but API rejected the request |
+| `timeout` | Timed out waiting for GPU resources |
+
 ## Documentation
 
 | File | Description |
 |------|-------------|
 | [SKILL.md](SKILL.md) | Core skill instructions, concepts, and quick reference |
+| [queue_submit.py](queue_submit.py) | Queued submission with validation and GPU polling |
 | [api-reference.md](api-reference.md) | Complete API parameters, response schemas, and gotchas |
 | [examples.md](examples.md) | 7 ready-to-use scenario examples (deploy, scale, debug, etc.) |
 
