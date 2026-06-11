@@ -48,13 +48,24 @@ export async function requestJson<T = unknown>(
       "Content-Type": "application/json",
     },
   };
+
+  let requestPath = options.path;
   if (options.body !== undefined) {
-    init.body = JSON.stringify(options.body);
+    if (options.method === "GET") {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(options.body as Record<string, unknown>)) {
+        params.append(key, String(value));
+      }
+      const separator = requestPath.includes("?") ? "&" : "?";
+      requestPath = `${requestPath}${separator}${params.toString()}`;
+    } else {
+      init.body = JSON.stringify(options.body);
+    }
   }
 
   let response: Response;
   try {
-    response = await fetchImpl(joinUrl(options.host, options.path), init);
+    response = await fetchImpl(joinUrl(options.host, requestPath), init);
   } catch (error) {
     throw toApiError(error);
   }

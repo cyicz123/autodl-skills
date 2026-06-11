@@ -172,6 +172,27 @@ test("requestJson returns parsed JSON when code is Success", async () => {
   assert.deepEqual(result, { code: "Success", data: { id: "abc" } });
 });
 
+test("requestJson serializes GET body as query string instead of body", async () => {
+  const calls = [];
+  await requestJson({
+    host: "https://api.example.test",
+    method: "GET",
+    path: "/snapshot",
+    token: "token",
+    body: { instance_uuid: "pro-123", extra: "val" },
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return Response.json({ code: "Success", data: {} });
+    },
+  });
+
+  const parsedUrl = new URL(calls[0].url);
+  assert.equal(parsedUrl.pathname, "/snapshot");
+  assert.equal(parsedUrl.searchParams.get("instance_uuid"), "pro-123");
+  assert.equal(parsedUrl.searchParams.get("extra"), "val");
+  assert.equal(calls[0].init.body, undefined);
+});
+
 test("requestJson throws structured api_error for non-success outcomes", async (t) => {
   await t.test("non-2xx", async () => {
     await assert.rejects(

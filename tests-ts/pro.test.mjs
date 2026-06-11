@@ -141,8 +141,8 @@ test("Pro API helpers call documented endpoints", async () => {
   ]);
 
   assert.deepEqual(JSON.parse(calls[0].init.body), validProConfig());
-  assert.deepEqual(JSON.parse(calls[1].init.body), { instance_uuid: "pro-abc123" });
-  assert.deepEqual(JSON.parse(calls[2].init.body), { instance_uuid: "pro-abc123" });
+  assert.equal(new URL(calls[1].url).searchParams.get("instance_uuid"), "pro-abc123");
+  assert.equal(new URL(calls[2].url).searchParams.get("instance_uuid"), "pro-abc123");
   assert.deepEqual(JSON.parse(calls[3].init.body), { page_index: 1, page_size: 10 });
   assert.deepEqual(JSON.parse(calls[4].init.body), {
     instance_uuid: "pro-abc123",
