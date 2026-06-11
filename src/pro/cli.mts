@@ -26,7 +26,7 @@ export function loadRuntimeContext(options: { skillDir?: string; env?: EnvMap } 
 }
 
 function defaultSkillDir(): string {
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../skills/autodl-instance-pro");
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 }
 
 const HELP = `AutoDL instance Pro CLI

@@ -14,7 +14,7 @@ export function loadRuntimeContext(options = {}) {
     });
 }
 function defaultSkillDir() {
-    return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../skills/autodl-instance-pro");
+    return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 }
 const HELP = `AutoDL instance Pro CLI
 

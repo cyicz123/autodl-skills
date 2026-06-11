@@ -29,7 +29,7 @@ export function loadRuntimeContext(options: { skillDir?: string; env?: EnvMap } 
 }
 
 function defaultSkillDir(): string {
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../skills/autodl-elastic-deploy");
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 }
 
 const HELP = `AutoDL elastic deployment CLI

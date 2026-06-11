@@ -15,7 +15,7 @@ export function loadRuntimeContext(options = {}) {
     });
 }
 function defaultSkillDir() {
-    return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../skills/autodl-elastic-deploy");
+    return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 }
 const HELP = `AutoDL elastic deployment CLI
 
