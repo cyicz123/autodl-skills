@@ -1,18 +1,19 @@
 {
   "id": "elastic-list-containers",
   "category": "elastic-private-cloud",
-  "prompt": "Use $autodl-elastic-deploy to show the command for listing containers under deployment deploy-abc123. Do not call live APIs.",
+  "prompt": "Use the autodl skill to show the command for listing containers under deployment deploy-abc123. Do not call live APIs.",
   "expected": {
-    "skill": "autodl-elastic-deploy",
+    "skill": "autodl",
+    "namespace": "elastic",
     "must_include": [
-      "autodl-elastic.mjs",
+      "autodl.mjs elastic",
       "containers",
       "--deployment-uuid deploy-abc123",
       "/api/v1/dev/deployment/container/list",
       "https://private.autodl.com"
     ],
     "must_not_include": [
-      "autodl-pro.mjs",
+      "autodl.mjs pro",
       "instance_uuid",
       "/api/v1/dev/instance/pro/status",
       "https://api.autodl.com"
@@ -25,7 +26,7 @@
   "scoring": {
     "max_score": 10,
     "rubric": [
-      {"points": 2, "criterion": "Selects Elastic skill."},
+      {"points": 2, "criterion": "Selects the elastic namespace."},
       {"points": 2, "criterion": "Uses containers command with deployment UUID flag."},
       {"points": 2, "criterion": "Maps to deployment container list endpoint."},
       {"points": 2, "criterion": "Uses private cloud host."},

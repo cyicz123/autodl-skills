@@ -1,9 +1,10 @@
 {
   "id": "elastic-submission-error-recovery",
   "category": "elastic-private-cloud",
-  "prompt": "Use $autodl-elastic-deploy. The queued submit returned error_type submission_error after 3 submit failures. Explain what to ask the user next. Do not retry or call APIs.",
+  "prompt": "Use the autodl skill. The queued submit returned error_type submission_error after 3 submit failures. Explain what to ask the user next. Do not retry or call APIs.",
   "expected": {
-    "skill": "autodl-elastic-deploy",
+    "skill": "autodl",
+    "namespace": "elastic",
     "must_include": [
       "submission_error",
       "3",
@@ -12,12 +13,12 @@
       "memory",
       "CUDA",
       "不要直接重试",
-      "autodl-elastic.mjs",
+      "autodl.mjs elastic",
       "https://private.autodl.com",
       "AUTODL_ELASTIC_TOKEN"
     ],
     "must_not_include": [
-      "autodl-pro.mjs",
+      "autodl.mjs pro",
       "release",
       "power-off",
       "https://api.autodl.com"

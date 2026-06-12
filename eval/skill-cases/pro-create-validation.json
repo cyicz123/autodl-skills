@@ -1,11 +1,12 @@
 {
   "id": "pro-create-validation",
   "category": "pro-public-cloud",
-  "prompt": "Use $autodl-instance-pro to validate a create config with req_gpu_amount=5 and expand_system_disk_by_gb=600. Do not call live APIs.",
+  "prompt": "Use the autodl skill to validate a Pro create config with req_gpu_amount=5 and expand_system_disk_by_gb=600. Do not call live APIs.",
   "expected": {
-    "skill": "autodl-instance-pro",
+    "skill": "autodl",
+    "namespace": "pro",
     "must_include": [
-      "autodl-pro.mjs",
+      "autodl.mjs pro",
       "create --json",
       "req_gpu_amount",
       "1 through 4",
@@ -14,7 +15,7 @@
       "validation_error"
     ],
     "must_not_include": [
-      "autodl-elastic.mjs",
+      "autodl.mjs elastic",
       "queue-submit",
       "AUTODL_ELASTIC_TOKEN",
       "https://private.autodl.com"
@@ -27,7 +28,7 @@
   "scoring": {
     "max_score": 10,
     "rubric": [
-      {"points": 2, "criterion": "Selects Pro skill."},
+      {"points": 2, "criterion": "Selects the pro namespace."},
       {"points": 3, "criterion": "Identifies both documented numeric range violations."},
       {"points": 2, "criterion": "Treats issue as local validation before API calls."},
       {"points": 1, "criterion": "Mentions create --json usage."},
