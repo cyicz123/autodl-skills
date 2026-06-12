@@ -1,15 +1,16 @@
 # AutoDL Skills
 
-This repository contains two Node.js-backed Agent Skills for AutoDL. Both share TypeScript source and tests at the repository root, but each skill keeps its own runtime host, token variables, CLI entrypoint, and local `.env`.
+`autodl-skills` is a single Node.js-backed Agent Skill for AutoDL. One CLI (`autodl.mjs`) covers both clouds through cloud-prefixed subcommands, plus a documentation-driven rclone sync workflow for moving code, weights, and logs over SSH.
 
-## Skills
+## Skill
 
-| Skill | Cloud context | Default host | Host override | Primary token |
+| Namespace | Cloud context | Default host | Host override | Token |
 |---|---|---|---|---|
-| `skills/autodl-elastic-deploy` | AutoDL private cloud elastic deployment | `https://private.autodl.com` | `AUTODL_ELASTIC_HOST` | `AUTODL_ELASTIC_TOKEN` |
-| `skills/autodl-instance-pro` | AutoDL public cloud container instance Pro | `https://api.autodl.com` | `AUTODL_PRO_HOST` | `AUTODL_PRO_TOKEN` |
+| `elastic` | AutoDL private cloud elastic deployment | `https://private.autodl.com` | `AUTODL_ELASTIC_HOST` | `AUTODL_ELASTIC_TOKEN` |
+| `pro` | AutoDL public cloud container instance Pro | `https://api.autodl.com` | `AUTODL_PRO_HOST` | `AUTODL_PRO_TOKEN` |
+| `sync` | Local ↔ container over SSH (rclone) | — | — | container SSH credentials |
 
-`AUTODL_TOKEN` is kept only as a compatibility fallback. Skill-specific token variables always win.
+Tokens are strictly namespaced. There is **no** shared `AUTODL_TOKEN` fallback: `elastic` reads `AUTODL_ELASTIC_TOKEN`, `pro` reads `AUTODL_PRO_TOKEN`, both only from `skills/autodl/.env`.
 
 ## Build And Test
 
@@ -19,85 +20,69 @@ npm run build
 npm test
 ```
 
-The checked-in skill entrypoints import compiled files from `dist/`, so run `npm run build` after cloning or editing TypeScript.
+`npm run build` runs `tsc` and then copies the compiled output into `skills/autodl/dist/`, which the checked-in entrypoint imports. Run it after cloning or editing TypeScript.
+
+## CLI
+
+```bash
+node skills/autodl/autodl.mjs --help
+node skills/autodl/autodl.mjs elastic queue-submit deploy.json --interval 30 --timeout 3600
+node skills/autodl/autodl.mjs pro status pro-xxxxxxxx
+```
+
+Configure `skills/autodl/.env` (copy from `.env.example`):
+
+```env
+AUTODL_ELASTIC_TOKEN=your_private_cloud_token_here
+AUTODL_ELASTIC_HOST=https://private.autodl.com
+AUTODL_PRO_TOKEN=your_public_cloud_token_here
+AUTODL_PRO_HOST=https://api.autodl.com
+```
+
+- Elastic deployment configs use `dc_list`, `cuda_v_from`, and `cuda_v_to` (integer CUDA codes, e.g. `118` = 11.8).
+- Pro API access requires personal or enterprise verification. Power off an instance before releasing it; the CLI does not power off implicitly.
+
+## Sync (rclone over SSH)
+
+Incrementally sync local data to an AutoDL container directly over SSH/SFTP, with no public-repo intermediary. The agent detects/installs `rclone`, derives SSH info from `elastic containers` / `pro snapshot`, and runs `rclone copy` (safe, no delete by default). See `skills/autodl/sync-reference.md`.
 
 ## Skill Eval Dataset
 
-Offline skill-correctness cases live in `eval/skill-cases/`. They cover private-cloud Elastic, public-cloud Pro, and ambiguous cloud-context prompts. Each case includes the prompt, expected skill, required/forbidden response content, forbidden actions such as live API calls, and a 10-point rubric.
-
-The dataset integrity is checked by:
+Offline skill-correctness cases live in `eval/skill-cases/`, covering elastic, pro, sync, and ambiguous-context prompts. Each case declares the expected skill (`autodl`), a `namespace` (`elastic`/`pro`/`sync`/`none`), required/forbidden content, forbidden actions, and a 10-point rubric.
 
 ```bash
 node --test tests-ts/skill-eval-dataset.test.mjs
 ```
 
-## Elastic Deployment
-
-Use this for private-cloud elastic deployments: ReplicaSet, Job, Container, queue-submit, scaling, lifecycle, images, GPU stock, events, and blacklists.
-
-```bash
-node skills/autodl-elastic-deploy/autodl-elastic.mjs --help
-node skills/autodl-elastic-deploy/autodl-elastic.mjs queue-submit deploy.json --interval 30 --timeout 3600
-```
-
-Configure `skills/autodl-elastic-deploy/.env`:
-
-```env
-AUTODL_ELASTIC_TOKEN=your_token_here
-AUTODL_ELASTIC_HOST=https://private.autodl.com
-```
-
-Elastic deployment configs use `dc_list`, `cuda_v_from`, and `cuda_v_to`.
-
-## Instance Pro
-
-Use this for public-cloud container instance Pro resources: create, snapshot, status, list, power on/off, release, save images, and list images. Pro API access requires personal or enterprise verification.
-
-```bash
-node skills/autodl-instance-pro/autodl-pro.mjs --help
-node skills/autodl-instance-pro/autodl-pro.mjs create --json pro-create.json
-```
-
-Configure `skills/autodl-instance-pro/.env`:
-
-```env
-AUTODL_PRO_TOKEN=your_token_here
-AUTODL_PRO_HOST=https://api.autodl.com
-```
-
-Power off an instance before releasing it; the CLI does not power off implicitly.
-
 ## Install Locally
 
-For Codex/Agents skills, create directory junctions from this repository into `~/.agents/skills`.
+Create one directory junction from this repository into `~/.agents/skills`:
 
 ```powershell
-New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\autodl-elastic-deploy" -Target "C:\Users\chengyue\Documents\Code\autodl-elastic-deploy\skills\autodl-elastic-deploy"
-New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\autodl-instance-pro" -Target "C:\Users\chengyue\Documents\Code\autodl-elastic-deploy\skills\autodl-instance-pro"
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\autodl" -Target "C:\Users\chengyue\Documents\Code\autodl-elastic-deploy\skills\autodl"
 ```
 
-If those paths already exist, inspect their targets before replacing them.
+The on-disk repository folder is intentionally left as `autodl-elastic-deploy`; only the project name and git remote are `autodl-skills`. Inspect existing junction targets before replacing them.
 
 ## Repository Layout
 
 ```text
 skills/
-  autodl-elastic-deploy/
+  autodl/
     SKILL.md
-    autodl-elastic.mjs
+    autodl.mjs
     .env.example
     api-reference.md
     examples.md
-  autodl-instance-pro/
-    SKILL.md
-    autodl-pro.mjs
-    .env.example
-    api-reference.md
-    examples.md
+    sync-reference.md
+    dist/
 src/
   core/
   elastic/
   pro/
+  main/        # top-level elastic|pro router
+scripts/
+  copy-dist.mjs
 tests-ts/
 eval/
   skill-cases/
