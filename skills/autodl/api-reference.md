@@ -41,11 +41,13 @@ Top-level fields:
 | cuda_v_to | Int | yes | Max CUDA code (e.g. 122 = 12.2) |
 | gpu_name_set | List\<String\> | yes | Schedulable GPU models |
 | gpu_num | Int | yes | GPU count |
-| memory_size_from / memory_size_to | Int | yes | Memory range (GB) |
+| memory_size_from / memory_size_to | Int | yes | Memory range in **GB** (integers). The API converts to bytes internally — do **not** pass byte values (e.g. `17179869184`), which overflow. The container-list response reports `memory_size` in bytes, so do not reuse that value as input. |
 | cpu_num_from / cpu_num_to | Int | yes | CPU core range |
 | price_from / price_to | Int | yes | Price range (yuan × 1000) |
 | image_uuid | String | yes | Image UUID |
 | cmd | String | yes | Start command (see warning) |
+
+**Sizing tips:** `memory_size_from` / `cpu_num_from` are scheduling floors, not requests — a high floor can leave a deployment unschedulable. Start `memory_size_from` low (1–8 GB) and raise it only if needed; in practice `memory_size_from: 16` failed to schedule on a private-cloud RTX 4090 D cluster while `memory_size_from: 8` succeeded.
 
 **`cmd` trap:** combining `&&` with `||` (e.g. `cmd1 && cmd2 || cmd3`) can make a `Job` impossible to stop. Prefer semicolons or an explicit `if`:
 
@@ -82,7 +84,8 @@ Response `data.list[]`:
 | deployment_uuid | String | Deployment UUID |
 | machine_id | String | Host UUID |
 | status | String | Container status |
-| gpu_name / gpu_num / cpu_num / memory_size | — | Resources |
+| gpu_name / gpu_num / cpu_num | — | Resources |
+| memory_size | Int | Memory in **bytes** (e.g. `17179869184` = 16 GB). Input fields `memory_size_from/to` use GB, not bytes. |
 | image_uuid | String | Image UUID |
 | price | Float | Base price (yuan × 1000) |
 | **info.ssh_command** | String | **SSH login command (used by sync)** |

@@ -176,6 +176,7 @@ On error, the agent must guide the user to fix parameters based on `error_type` 
 3. Paths: `cd` first, e.g. `cd /root && python app.py`.
 4. Debug: set `cmd` to `sleep infinity`, then SSH in to investigate.
 5. `cmd1 && cmd2 || fallback` can make a Job impossible to stop; prefer semicolons or explicit `if`.
+6. `memory_size_from`/`memory_size_to` are in GB (the API converts to bytes — never pass byte values). `*_from` fields are scheduling floors: start `memory_size_from` low (1–8) and raise only if needed, since a high floor can leave a deployment unschedulable.
 
 ## References
 

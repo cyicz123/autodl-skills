@@ -51,6 +51,8 @@ node <SKILL_DIR>/autodl.mjs elastic queue-submit deploy-replicaset.json --interv
 }
 ```
 
+> `memory_size_from` / `memory_size_to` are in **GB** (the API converts to bytes; never pass byte values). `memory_size_from` is a scheduling floor — start it low (1–8) and raise only if needed; e.g. `16` failed to schedule on a private-cloud RTX 4090 D cluster while `8` succeeded.
+
 ## Create a Job for batch training
 
 `deploy-job.json`:
