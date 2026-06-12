@@ -32,14 +32,14 @@ function cleanHost(host) {
 export function loadRuntimeContext(options) {
     const env = options.env ?? process.env;
     const skillEnv = loadSkillEnv(options.skillDir);
-    const fallbackTokenEnvName = options.fallbackTokenEnvName ?? "AUTODL_TOKEN";
+    const fallbackTokenEnvName = options.fallbackTokenEnvName;
     const host = env[options.hostEnvName] ??
         skillEnv[options.hostEnvName] ??
         options.defaultHost;
     const token = env[options.tokenEnvName] ??
-        env[fallbackTokenEnvName] ??
+        (fallbackTokenEnvName ? env[fallbackTokenEnvName] : undefined) ??
         skillEnv[options.tokenEnvName] ??
-        skillEnv[fallbackTokenEnvName];
+        (fallbackTokenEnvName ? skillEnv[fallbackTokenEnvName] : undefined);
     return {
         host: cleanHost(host),
         ...(token ? { token } : {}),

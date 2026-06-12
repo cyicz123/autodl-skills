@@ -66,10 +66,10 @@ test("host override is read from matching environment variable", async () => {
   assert.equal(context.host, "https://elastic.example.test");
 });
 
-test("skill-specific token wins over AUTODL_TOKEN fallback", async () => {
-  const skillDir = await makeSkillDir("autodl-instance-pro");
+test("AUTODL_TOKEN is ignored; only namespaced tokens resolve", async () => {
+  const skillDir = await makeSkillDir("autodl");
 
-  const context = loadRuntimeContext({
+  const withSpecific = loadRuntimeContext({
     skillDir,
     defaultHost: "https://api.autodl.com",
     hostEnvName: "AUTODL_PRO_HOST",
@@ -79,8 +79,16 @@ test("skill-specific token wins over AUTODL_TOKEN fallback", async () => {
       AUTODL_PRO_TOKEN: "specific-token",
     },
   });
+  assert.equal(withSpecific.token, "specific-token");
 
-  assert.equal(context.token, "specific-token");
+  const onlyLegacy = loadRuntimeContext({
+    skillDir,
+    defaultHost: "https://api.autodl.com",
+    hostEnvName: "AUTODL_PRO_HOST",
+    tokenEnvName: "AUTODL_PRO_TOKEN",
+    env: { AUTODL_TOKEN: "compat-token" },
+  });
+  assert.equal(onlyLegacy.token, undefined);
 });
 
 test("skill-local .env files are isolated between elastic and pro", async () => {
