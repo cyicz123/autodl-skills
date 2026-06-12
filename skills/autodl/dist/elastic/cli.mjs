@@ -20,18 +20,18 @@ function defaultSkillDir() {
 const HELP = `AutoDL elastic deployment CLI
 
 Usage:
-  node autodl-elastic.mjs queue-submit <config.json> [--interval 30] [--timeout 0]
-  node autodl-elastic.mjs images [--page-index 1] [--page-size 100]
-  node autodl-elastic.mjs deployments [--page-index 1] [--page-size 10]
-  node autodl-elastic.mjs containers --deployment-uuid <uuid> [--page-index 1] [--page-size 10]
-  node autodl-elastic.mjs events --deployment-uuid <uuid> [--offset N]
-  node autodl-elastic.mjs stop-container <container_uuid> [--decrease-one-replica-num] [--no-cache]
-  node autodl-elastic.mjs set-replicas <deployment_uuid> <replica_num>
-  node autodl-elastic.mjs stop-deployment <deployment_uuid>
-  node autodl-elastic.mjs delete-deployment <deployment_uuid>
-  node autodl-elastic.mjs blacklist <container_uuid> [--comment "..."]
-  node autodl-elastic.mjs list-blacklist
-  node autodl-elastic.mjs gpu-stock --region <region_sign> [--json <filters.json>]
+  node autodl.mjs elastic queue-submit <config.json> [--interval 30] [--timeout 0]
+  node autodl.mjs elastic images [--page-index 1] [--page-size 100]
+  node autodl.mjs elastic deployments [--page-index 1] [--page-size 10]
+  node autodl.mjs elastic containers --deployment-uuid <uuid> [--page-index 1] [--page-size 10]
+  node autodl.mjs elastic events --deployment-uuid <uuid> [--offset N]
+  node autodl.mjs elastic stop-container <container_uuid> [--decrease-one-replica-num] [--no-cache]
+  node autodl.mjs elastic set-replicas <deployment_uuid> <replica_num>
+  node autodl.mjs elastic stop-deployment <deployment_uuid>
+  node autodl.mjs elastic delete-deployment <deployment_uuid>
+  node autodl.mjs elastic blacklist <container_uuid> [--comment "..."]
+  node autodl.mjs elastic list-blacklist
+  node autodl.mjs elastic gpu-stock --region <region_sign> [--json <filters.json>]
 `;
 export async function main(argv = process.argv.slice(2), io = process) {
     try {
@@ -42,7 +42,7 @@ export async function main(argv = process.argv.slice(2), io = process) {
         const command = argv[0];
         const context = loadRuntimeContext();
         if (!context.token) {
-            throw new ApiError("token_missing", ".env 中未找到 AUTODL_ELASTIC_TOKEN 或 AUTODL_TOKEN", {}, 1);
+            throw new ApiError("token_missing", ".env 中未找到 AUTODL_ELASTIC_TOKEN", {}, 1);
         }
         const apiContext = { host: context.host, token: context.token };
         switch (command) {

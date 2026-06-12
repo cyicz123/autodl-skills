@@ -19,15 +19,15 @@ function defaultSkillDir() {
 const HELP = `AutoDL instance Pro CLI
 
 Usage:
-  node autodl-pro.mjs create --json <config.json>
-  node autodl-pro.mjs snapshot <instance_uuid>
-  node autodl-pro.mjs status <instance_uuid>
-  node autodl-pro.mjs list [--page-index 1] [--page-size 10]
-  node autodl-pro.mjs power-on <instance_uuid> [--start-command "..."]
-  node autodl-pro.mjs power-off <instance_uuid>
-  node autodl-pro.mjs release <instance_uuid>
-  node autodl-pro.mjs save-image <instance_uuid> --name <image_name>
-  node autodl-pro.mjs list-images [--page-index 1] [--page-size 10]
+  node autodl.mjs pro create --json <config.json>
+  node autodl.mjs pro snapshot <instance_uuid>
+  node autodl.mjs pro status <instance_uuid>
+  node autodl.mjs pro list [--page-index 1] [--page-size 10]
+  node autodl.mjs pro power-on <instance_uuid> [--start-command "..."]
+  node autodl.mjs pro power-off <instance_uuid>
+  node autodl.mjs pro release <instance_uuid>
+  node autodl.mjs pro save-image <instance_uuid> --name <image_name>
+  node autodl.mjs pro list-images [--page-index 1] [--page-size 10]
 `;
 export async function main(argv = process.argv.slice(2), io = process) {
     try {
@@ -38,7 +38,7 @@ export async function main(argv = process.argv.slice(2), io = process) {
         const command = argv[0];
         const context = loadRuntimeContext();
         if (!context.token) {
-            throw new ApiError("token_missing", ".env 中未找到 AUTODL_PRO_TOKEN 或 AUTODL_TOKEN", {}, 1);
+            throw new ApiError("token_missing", ".env not found: AUTODL_PRO_TOKEN", {}, 1);
         }
         const apiContext = { host: context.host, token: context.token };
         switch (command) {

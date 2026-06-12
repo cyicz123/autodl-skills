@@ -1,7 +1,9 @@
 {
+  "name": "autodl-skills",
+  "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-dist.mjs",
     "test": "npm run build && node --test tests-ts/*.test.mjs",
     "check": "tsc --noEmit"
   },
